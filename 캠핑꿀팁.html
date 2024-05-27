@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>캠핑꿀팁</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700|Merriweather:400,700" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url('https://economychosun.com/site/data/img_dir/2021/01/31/2021013100029_0.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #102027;
+            margin: 0;
+            padding: 0;
+            background-attachment: fixed;
+        }
+        h1 {
+            font-family: 'Merriweather', serif;
+            color: #9a81d3;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            width: fit-content;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .result-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-width: 600px;
+        }
+        .button {
+            background-color: #3bcbff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #07a0ff;
+        }
+        #results {
+            text-align: center; /* 결과를 가운데 정렬 */
+            margin-top: 50px; /* 위쪽 여백 추가 */
+        }
+        @media (max-width: 768px) {
+            h1 {
+                margin: 10px;
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>캠핑꿀팁</h1>
+    <div id="results"></div>
+    <button id="loadMoreButton" class="button" style="display: none;" onclick="loadMoreResults()">더 보기</button>
+    <script>
+        const REST_API_KEY = '2caee7ec8dc4723c7ac24dee3a5e6067';
+        let currentPage = 1;
+
+        function searchWebDocuments() {
+            const searchQuery = "캠핑꿀팁"; // 기본 검색어로 설정
+
+            const apiUrl = `https://dapi.kakao.com/v2/search/web?query=${encodeURIComponent(searchQuery)}&page=${currentPage}`;
+            fetch(apiUrl, {
+                headers: { 'Authorization': `KakaoAK ${REST_API_KEY}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data.documents);
+                if (data.meta.pageable_count > currentPage * 10) {
+                    document.getElementById('loadMoreButton').style.display = 'block'; // 더보기 버튼 표시
+                } else {
+                    document.getElementById('loadMoreButton').style.display = 'none'; // 더 이상 결과가 없으면 버튼 숨김
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function loadMoreResults() {
+            currentPage++;
+            searchWebDocuments();
+        }
+
+        function displayResults(documents) {
+            const resultsDiv = document.getElementById('results');
+            documents.forEach(item => {
+                const title = item.title.replace(/<\/?b>/g, '');
+                const url = item.url;
+
+                const resultContainer = document.createElement('div');
+                resultContainer.classList.add('result-container');
+
+                const contentDiv = document.createElement('div');
+                contentDiv.classList.add('content');
+
+                const titleElement = document.createElement('a');
+                titleElement.textContent = title;
+                titleElement.href = url;
+                titleElement.classList.add('title');
+                contentDiv.appendChild(titleElement);
+
+                resultContainer.appendChild(contentDiv);
+
+                resultsDiv.appendChild(resultContainer);
+            });
+        }
+
+        // 페이지가 로드되면 바로 검색 실행
+        window.onload = searchWebDocuments;
+    </script>
+</body>
+</html>
